@@ -1,0 +1,37 @@
+<!-- templates/tasks/task_list.html -->
+<h1>Task List</h1>
+
+{% if request.user.role != 'manager' %}
+    <a href="{% url 'task_create_template' %}">Create New Task</a>
+{% endif %}
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.description }}</td>
+            <td>{{ task.status }}</td>
+            <td>
+                <a href="{% url 'task_detail_template' task.pk %}">View</a> |
+                {% if request.user.role != 'manager' and task.status != 'Accepted' %}
+                    <a href="{% url 'task_edit_template' task.pk %}">Edit</a> |
+
+                {% endif %}
+                {% if request.user.role == 'manager' %}
+                    <a href="{% url 'task_change_status' task.pk 'approved' %}">Approve</a> |
+                    <a href="{% url 'task_change_status' task.pk 'rejected' %}">Reject</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

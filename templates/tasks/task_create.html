@@ -1,0 +1,65 @@
+<!-- templates/tasks/task_create.html -->
+<h1>Create Task</h1>
+
+<form id="taskForm">
+    {% csrf_token %}
+    <input type="hidden" id="user" name="user" value="{{ request.user.id }}">
+
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required><br><br>
+
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" required></textarea><br><br>
+
+    <label for="status">Status:</label>
+    <select id="status" name="status" disabled>
+        <option value="pending">Pending</option>
+    </select><br><br>
+
+    <label for="hours_spent">Hours Spent:</label>
+    <input type="text" id="hours_spent" name="hours_spent" required><br><br>
+
+    <label for="tags">Tags:</label>
+    <input type="text" id="tags" name="tags" required><br><br>
+
+    <label for="task_date">Task Date:</label>
+    <input type="date" id="task_date" name="task_date" required><br><br>
+
+    
+    <button type="submit">Save</button>
+</form>
+<script>
+    document.getElementById('taskForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // prevent normal form submission
+    
+        const formData = new FormData(this);
+    
+        const data = Object.fromEntries(formData.entries());
+        const hoursSpent = parseFloat(document.getElementById('hours_spent').value);
+
+        if (hoursSpent >= 8) {
+            event.preventDefault();
+            alert('Hours spent must be less than 8.');
+            return false;
+        }
+    
+        const response = await fetch('/api/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Authorization': 'Bearer ' + localStorage.access_token,
+            },
+            body: JSON.stringify(data),
+        });
+    
+        const result = await response.json();
+    
+        if (response.ok) {
+            alert('Task created successfully!');
+            window.location.href = '/tasks/'; // redirect after success
+        } else {
+            alert('Error: ' + JSON.stringify(result));
+        }
+    });
+    </script>
